@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+<h1>Кулькулятор</h1>
+	<form id="formCalc">
+		<div class="calc-input">
+			<h2>Размер макета</h2>
+			<ul>
+				<li>
+					<p><lable for="formCalcWidth">Ширина:</lable><input type="text" name="formCalcWidth">, см</p>
+					<p><lable for="formCalcHeight">Высота:</lable><input type="text" name="formCalcHeight">, см</p>
+				</li>
+				<li><p>Формат:
+					<select name="format">
+						<option value="А0">А0</option>
+						<option value="А1">А1</option>
+						<option value="А2">А2</option>
+						<option value="А3">А3</option>
+						<option value="А4">А4</option>
+						<option value="А5">А5</option>
+					</select></p>
+				</li>
+			</ul>
+			</p>
+		</div>
+		<div>
+			<lable for="photoQ">Фотокачество</lable><input type="checkbox" name="photoQ">
+		<div>
+		<div class="calc-input">
+			<p><lable for="formCalcPrintCount">Тираж:</lable><input type="text" name="formCalcPrintCount">, шт</p>
+		</div>
+		<div class="calc-input">
+			<h2>Технология печати:</h2>
+				<select name="printTech">
+					<option value="solvent">Сольвентная</option>
+					<option value="UV">Ультрафиолетовая</option>
+					<option value="water">Водная</option>
+				</select>
+		</div>
+		<div class="calc-input">
+			<h2>Доп.работы</h2>
+			<ul>
+				<li><p>Ламинация</p>
+					<ul>
+						<li><lable for="formDopLam">Обычная ламинация</lable>				<input type="radio" value="1" name="formDopLam"></li>
+						<li><lable for="formDopLam">Ламинация монтажным трансфером</lable>	<input type="radio" value="2" name="formDopLam"></li>
+						<li><lable for="formDopLam">Износостойкой пленкой</lable>			<input type="radio" value="3" name="formDopLam"></li>
+					</ul>
+				</li>
+				<li><p>Набивка люверсов</p>
+				<p><lable for="stepLuvers">Шаг люверсов</lable><input type="text" name="stepLuvers">, см</p>
+					<ul>
+						<li><lable for="formDopLam">С подворотами</lable><input type="checkbox" name="formDopLam"><lable for="formDopLam">Подвороты с проклейкой</lable><input type="checkbox" name="formDopLam"></li>
+					</ul>
+				</li>
+				<li><lable for="formDopLam">Проварка банера</lable><input type="checkbox" name="formDopLam"></li>
+					
+				<li><lable for="formDopLam">Плотерная порезка</lable><input type="checkbox" name="formDopLam"></li>
+				
+				<li><lable for="formDopLam">Прикатка к пластику</lable><input type="checkbox" name="formDopLam"></li>
+			</ul>
+		</div>
+		
+	<input type="submit">
+	</form>
+
+
+</body>
+</html>
