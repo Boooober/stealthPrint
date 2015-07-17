@@ -1,0 +1,13 @@
+.calc-input {
+	border: 1px dotted black;
+	margin: 10px 0;
+	padding: 10px;
+}
+
+
+.js-tabs .js-tab__content {
+	display:none;
+}
+.js-tabs .js-tab__content.active{
+	display:block;
+}
