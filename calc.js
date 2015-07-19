@@ -54,4 +54,25 @@ window.addEventListener("load", function () {
 		e.preventDefault();		
 	});
 	
+	// AJAX exchange rates request
+	
+	var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+	var xhr = new XHR();
+	xhr.open('GET', 'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=3', true);
+	xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	/*xhr.responseType = "json";
+	xhr.setRequestHeader('Content-Type', 'text/plain');
+	xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');*/
+	var data;
+	xhr.onload = function(e){
+		data = JSON.parse(this.responseText);
+		
+	}
+	xhr.send();
+	console.log(xhr.response);
+	
+	
+	
+	
 });
