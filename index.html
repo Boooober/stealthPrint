@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="jquery-1.11.3"></script>
-	<script src="calc.js"></script>
+	
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -10,16 +9,22 @@
 
 	<form id="sptCalc" name="sptCalc">
 		<div class="exchangeRates">0</div>
-		<div id="calcFormat" class="calc-input js-tabs">
+		
+		<div id="calcFormatBox" class="calc-input js-tabs">
 			<h2>Размер макета</h2>
-			<p>
-				<lable for="formCalcWidth">Ширина:</lable>
-				<input type="text" class="formatInput" name="calcFormWidth" placeholder="0" id="calcFormWidth">, см
-			</p>
-			<p>
-				<lable for="formCalcHeight">Высота:</lable>
-				<input type="text" class="formatInput" name="calcFormHeight" placeholder="0" id="calcFormHeight">, см
-			</p>
+			<ul>
+				<li>
+					<lable for="formCalcWidth">Ширина:</lable>
+					<input type="text" class="formatInput" name="calcFormatWidth" placeholder="0">, см
+					<p class="error"></p>
+				</li>
+				<li>
+					<lable for="formCalcHeight">Высота:</lable>
+					<input type="text" class="formatInput" name="calcFormatHeight" placeholder="0">, см
+					<p class="error"></p>
+				</li>
+			</ul>
+			
 			<p class="alert"></p>
 			<select name="formatSelect" id="formatSelect">
 
@@ -33,11 +38,13 @@
 				<option value="A5">А5</option>
 			</select>
 		</div>
+		
 		<div>
 			<lable for="photoQ">Фотокачество</lable><input type="checkbox" id="photoQ" name="photoQ">
 		</div>
 		<div class="calc-input">
-			<p><lable for="formCalcPrintCount">Тираж:</lable><input type="text" id="printCount" name="printCount">, шт</p>
+			<lable for="formCalcPrintCount">Тираж:</lable><input type="text" placeholder="1" id="printCount" name="printCount">, шт
+			<p class="error"></p>
 		</div>
 		<div class="calc-input">
 			<h2>Технология печати:</h2>
@@ -50,26 +57,25 @@
 		<div class="calc-input">
 			<h2>Выбор материала для печати</h2>
 				<select name="printMedia">
-					<option value="media1">Просветная бумага "CityLight"</option>
-					<option value="media2">Влагостойкая бумага "BlueBack"</option>
-					<option value="media3">Литой банер "Frontlit"</option>
-					<option value="media4">Ламинированный банер "Frontlit"</option>
-					<option value="media5">Просветный банер "Backlit"</option>
-					<option value="media6">Банер "Blockout"</option>
-					<option value="media7">Сетка</option>
-					<option value="media8">Глянцевая самоклеющаяся пленка</option>
-					<option value="media9">Матовая самоклеющаяся пленка</option>
-					<option value="media10">Прозрачная самоклеющаяся пленка</option>
-					<option value="media11">Перфорировання пленка</option>
-					<option value="media12">Фотообои</option>
-					<option value="media13">Полиман</option>
-					<option value="media14">Ткань</option>
-					<option value="media15">ПВХ-листы</option>
-					<option value="media16">Композитный материал</option>
-					<option value="media17">Стекло</option>
-					<option value="media18">Акрил</option>
-					<option value="media19">Дерево / фанера</option>
-					<option value="media20">Листовой материал заказчика</option>
+					<option value="cityLight">Просветная бумага "CityLight"</option>
+					<option value="blueBack">Влагостойкая бумага "BlueBack"</option>
+					<option value="litFrontlit">Литой банер "Frontlit"</option>
+					<option value="lamFrontlit">Ламинированный банер "Frontlit"</option>
+					<option value="backlit">Просветный банер "Backlit"</option>
+					<option value="blockout">Банер "Blockout"</option>
+					<option value="mesh">Сетка</option>
+					<option value="glossyFilm">Глянцевая самоклеющаяся пленка</option>
+					<option value="mattFilm">Матовая самоклеющаяся пленка</option>
+					<option value="transperentFilm">Прозрачная самоклеющаяся пленка</option>
+					<option value="perfoFilm">Перфорировання пленка</option>
+					<option value="polyman">Полиман</option>
+					<option value="textile">Ткань</option>
+					<option value="pvc">ПВХ-листы</option>
+					<option value="composite">Композитный материал</option>
+					<option value="glass">Стекло</option>
+					<option value="acryl">Акрил</option>
+					<option value="wood">Дерево / фанера</option>
+					<option value="custom">Листовой материал заказчика</option>
 				</select>
 		</div>
 		<div class="calc-input">
@@ -98,7 +104,7 @@
 		
 		<input class="submit" type="submit">
 	</form>
-
-
+	
+	<script src="calc.js"></script>
 </body>
 </html>
