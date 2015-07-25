@@ -1,7 +1,5 @@
 window.addEventListener("load", function () {
 	
-	
-	
 	var calcForm = document.getElementById('sptCalc');
 	var inputFormat = calcForm.querySelectorAll('.formatInput');
 	var selectFormat = document.getElementById('formatSelect');
@@ -24,7 +22,8 @@ window.addEventListener("load", function () {
 	// Set values to the format inputs from the formats object
 	
 	selectFormat.addEventListener('change', function(){
-		setFormat(selectFormat.options[selectFormat.selectedIndex].value);	
+		setFormat(selectFormat.options[selectFormat.selectedIndex].value);
+		/**/calcForm.querySelector('.alert').innerHTML = '';
 	});
 	
 	function setFormat(format){
@@ -33,22 +32,36 @@ window.addEventListener("load", function () {
 	};
 	
 	
-	// If input changed - save new custom values to the formats object
+	// Add Event Listener for input. If input changed - save new custom values to the formats object
 	
 	for (var i=0;i<inputFormat.length;i++){
 		inputFormat[i].addEventListener('change', function(){
-			saveCustomFormat();
+			selectFormat.getElementsByTagName('option')[1].selected = 'selected';
+			if (checkNumInput(this.value)){
+				saveCustomFormat();
+			}
 		});
 	}
 	
 	function saveCustomFormat() {
-		
 		formats.custom.width = calcFormWidth.value;
 		formats.custom.height = calcFormHeight.value;
-		selectFormat.getElementsByTagName('option')[1].selected = 'selected';
 	}
 	
-	//check the values with regexp. If they are numbers - save new custom format. Else - show notification.
+	function checkNumInput (string){
+		if (/^\d*$/.test(string)) {
+			/**/calcForm.querySelector('.alert').innerHTML = '';
+			return true;
+		} else {
+			calcForm.querySelector('.alert').innerHTML = 'Введите корректный формат';
+		}
+	}
+	
+	
+	
+	
+	
+	
 	
 	calcForm.addEventListener('submit', function(e){
 		e.preventDefault();		
@@ -56,14 +69,14 @@ window.addEventListener("load", function () {
 	
 	// AJAX exchange rates request
 	
-	var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+	/* var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
 	var xhr = new XHR();
 	xhr.open('GET', 'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=3', true);
-	xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+	//xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	/*xhr.responseType = "json";
 	xhr.setRequestHeader('Content-Type', 'text/plain');
-	xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');*/
+	xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 	var data;
 	xhr.onload = function(e){
 		data = JSON.parse(this.responseText);
@@ -72,6 +85,7 @@ window.addEventListener("load", function () {
 	xhr.send();
 	console.log(xhr.response);
 	
+	*/
 	
 	
 	

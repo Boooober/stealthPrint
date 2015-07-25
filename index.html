@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<script src="jquery-1.11.3"></script>
 	<script src="calc.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -9,7 +10,7 @@
 
 	<form id="sptCalc" name="sptCalc">
 		<div class="exchangeRates">0</div>
-		<div class="calc-input js-tabs">
+		<div id="calcFormat" class="calc-input js-tabs">
 			<h2>Размер макета</h2>
 			<p>
 				<lable for="formCalcWidth">Ширина:</lable>
@@ -19,7 +20,9 @@
 				<lable for="formCalcHeight">Высота:</lable>
 				<input type="text" class="formatInput" name="calcFormHeight" placeholder="0" id="calcFormHeight">, см
 			</p>
-			<select name="format" id="formatSelect">
+			<p class="alert"></p>
+			<select name="formatSelect" id="formatSelect">
+
 				<option disabled>Выберите формат</option>
 				<option value="custom">Произвольный</option>
 				<option value="A0">А0</option>
