@@ -15,21 +15,22 @@
 			<ul>
 				<li>
 					<lable for="formCalcWidth">Ширина:</lable>
-					<input type="text" class="formatInput" name="calcFormatWidth" placeholder="0">, см
+					<input type="text" name="calcFormatWidth" id="calcFormatWidth" placeholder="0">, см
 					<p class="error"></p>
 				</li>
 				<li>
 					<lable for="formCalcHeight">Высота:</lable>
-					<input type="text" class="formatInput" name="calcFormatHeight" placeholder="0">, см
+					<input type="text" name="calcFormatHeight" id="calcFormatHeight" placeholder="0">, см
 					<p class="error"></p>
 				</li>
 			</ul>
 			
 			<p class="alert"></p>
 			<select name="formatSelect" id="formatSelect">
-
-				<option disabled>Выберите формат</option>
 				<option value="custom">Произвольный</option>
+				<option value="Troll">Растяжки (Троллы) 5x1</option>
+				<option value="BigBord18">Биг Борд 6x3</option>
+				<option value="CityLight">Ситилайт 1.2х1.8</option>
 				<option value="A0">А0</option>
 				<option value="A1">А1</option>
 				<option value="A2">А2</option>
@@ -40,15 +41,16 @@
 		</div>
 		
 		<div>
-			<lable for="photoQ">Фотокачество</lable><input type="checkbox" id="photoQ" name="photoQ">
+			<lable for="photoQ">Фотокачество</lable><input type="checkbox" name="photoQuality">
 		</div>
 		<div class="calc-input">
-			<lable for="formCalcPrintCount">Тираж:</lable><input type="text" placeholder="1" id="printCount" name="printCount">, шт
+			<lable for="formCalcPrintCount">Тираж:</lable><input type="text" placeholder="1" name="printCount">, шт
 			<p class="error"></p>
 		</div>
 		<div class="calc-input">
 			<h2>Технология печати:</h2>
 				<select name="printTech">
+					<option disabled value="none" selected="selected">Выберите технологию печати</option>
 					<option value="solvent">Сольвентная</option>
 					<option value="UV">Ультрафиолетовая</option>
 					<option value="water">Водная</option>
@@ -57,6 +59,7 @@
 		<div class="calc-input">
 			<h2>Выбор материала для печати</h2>
 				<select name="printMedia">
+					<option disabled value="none" selected="selected">Выберите материал для печати</option>
 					<option value="cityLight">Просветная бумага "CityLight"</option>
 					<option value="blueBack">Влагостойкая бумага "BlueBack"</option>
 					<option value="litFrontlit">Литой банер "Frontlit"</option>
@@ -82,23 +85,29 @@
 			<h2>Доп.работы</h2>
 			<ul>
 				<li><p>Ламинация</p>
-				<select name="lam">
+				<select name="lamination">
+					<option disabled value="none" selected="selected">Выберите материал для ламинации</option>
 					<option value="lam1">Обычная ламинация</option>
 					<option value="lam2">Ламинация монтажным трансфером</option>
 					<option value="lam3">Износостойкой пленкой</option>
 				</select>
 				</li>
-				<li><p>Набивка люверсов</p>
-				<p><lable for="stepLuvers">Шаг люверсов</lable><input type="text" name="stepLuvers">, см</p>
+				<li><p>Набивка люверсов <input type="checkbox" name="luvers"></p>
+				<lable for="luversStep">Шаг люверсов</lable><input type="text" name="luversStep">, см
+				<p class="error"></p>
 					<ul>
-						<li><lable for="formDopLam">С подворотами</lable><input type="checkbox" name="formDopLam" value="01"><lable for="formDopLam">Подвороты с проклейкой</lable><input type="checkbox" name="formDopLam" value="02"></li>
+						<li>
+						<lable for="luversBannerTuck">С подворотами</lable>
+						<input type="checkbox" name="luversBannerTuck" value="01">
+						<lable for="glueBannerTuck">Подвороты с проклейкой</lable>
+						<input type="checkbox" name="glueBannerTuck" value="02"></li>
 					</ul>
 				</li>
-				<li><lable for="formDopLam">Проварка банера</lable><input type="checkbox" name="formDopLam"></li>
+				<li><lable for="bannerWelding">Проварка банера</lable><input type="checkbox" name="bannerWelding"></li>
 					
-				<li><lable for="formDopLam">Плотерная порезка</lable><input type="checkbox" name="formDopLam"></li>
+				<li><lable for="plotterCut">Плотерная порезка</lable><input type="checkbox" name="plotterCut"></li>
 				
-				<li><lable for="formDopLam">Прикатка к пластику</lable><input type="checkbox" name="formDopLam"></li>
+				<li><lable for="plasticStitching">Прикатка к пластику</lable><input type="checkbox" name="plasticStitching"></li>
 			</ul>
 		</div>
 		
