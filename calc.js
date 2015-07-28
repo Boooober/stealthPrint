@@ -19,39 +19,33 @@
 			CityLight:{"width":120,"height":180},
 			Troll:{"width":500,"height":100}
 		},
-		technology = { //UAH
-			uv:				{"price":100},
+		technologyData = { //UAH
+			UV:				{"price":100},
 			solvent:		{"price":45},
-			water:			{"price":1.5},		
+			water:			{"price":75},		
 		},
-		materials = {  //DOL
-			cityLight:			{"price":0.5},
-			blueBack:			{"price":0.5},
-			litFrontlit:		{"price":2},	
-			lamFrontlit:		{"price":1},
-			backlit:			{"price":3},
-			blockout:			{"price":3},
-			mesh:				{"price":1.2},
-			glossyFilm:			{"price":1.5},
-			mattFilm:			{"price":1.5},
-			transperentFilm:	{"price":1.5},	
-			perfoFilm:			{"price":1.5},
-			polyman:			{"price":3},
-			textile:			{"price":2},
-			pvc:				{"price":5},
-			composite:			{"price":7},		
-			glass:				{"price":7},	
-			acryl:				{"price":15},
-			wood:				{"price":5},
+		materialsData = {  //DOL
+			cityLight:			{"price":0.5,"mediaWidth":[120, 160]},
+			blueBack:			{"price":0.5,"mediaWidth":[120, 160]},
+			litFrontlit:		{"price":2,"mediaWidth":[220,250,320,400,500]},	
+			lamFrontlit:		{"price":1,"mediaWidth":[220,250,320,400,500]},
+			backlit:			{"price":3,"mediaWidth":[220,250,320]},
+			blockout:			{"price":3,"mediaWidth":[160]},
+			mesh:				{"price":1.2,"mediaWidth":[160, 220,320, 400, 500]},
+			glossyFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
+			mattFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
+			transperentFilm:	{"price":1.5,"mediaWidth":[107, 127, 152, 160]},	
+			perfoFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
+			polyman:			{"price":3,"mediaWidth":[315]},
+			textile:			{"price":2,"mediaWidth":[100]},
+			pvc:				{"price":5,"mediaWidth":[205]},
+			composite:			{"price":7,"mediaWidth":[145]},		
+			glass:				{"price":7,"mediaWidth":[100]},	
+			acryl:				{"price":15,"mediaWidth":[205]},
+			wood:				{"price":5,"mediaWidth":[100]},
 			custom:				{"price":1}	
-		};
-
-		var orderedObject = {
-			format:{'width':0,'height':0},
-			quantity:0,
-			printTech:'',
-			printMedia:'',
-		}
+		},
+		orderedObject = {}
 		
 		
 		
@@ -59,8 +53,8 @@
 		
 		
 	var setFormatToInput = function (format){
-		formatWidth.value = formats[format]['width'];
-		formatHeight.value = formats[format]['height'];
+		formatWidth.value = orderedObject.calcFormatWidth = formats[format]['width'];
+		formatHeight.value = orderedObject.calcFormatHeight = formats[format]['height'];
 	};
 	
 
@@ -92,13 +86,12 @@
 	// REFACTOR!!!
 	var setCalcFormat = function(elem){
 		if (elem.tagName === "INPUT"){
-			if ( setInputValue(elem) ) {
+			setInputValue(elem)
 				saveCustomFormat();
 				/* set format to orderedObject */
 			};
-		} else if (elem.tagName === "SELECT"){
-			setFormatToInput(elem.value);
-		//	setSelectedOptionValueToObject(elem); REFACTOR!!!		
+		if (elem.tagName === "SELECT"){
+			setFormatToInput(elem.value);	
 		};
 	};
 	
@@ -119,11 +112,7 @@
 		if ( checkNumberInputValue(elem) ){
 			orderedObject[elem.name] = parseInt(elem.value);	
 		};
-	};
-	
-	
-	
-	
+	};	
 	
 	var setCheckboxValue = function (elem){
 		if (elem.checked) orderedObject[elem.name] = true;
@@ -136,23 +125,27 @@
 	};
 
 
+	
+	//REFACTOR!!!
 	var setObjectLuversValues = function(elem){
 		var elemName = elem.name;
 		
-		if (typeof orderedObject.luvers !== "object" && orderedObject.luvers === true ){
-			orderedObject.luvers = new Object;
-		};
-		if (typeof orderedObject.luvers === "object" || orderedObject.luvers === true ){
+		if (orderedObject.luvers === true )	orderedObject.luvers = new Object;
+		
+		if (typeof orderedObject.luvers === "object"){
 			if (elem.type === "checkbox"){				
 				orderedObject.luvers[elemName] = true;
 			} else if (elem.type === "text"){
+				
+				//same function - setInputValue()
 				if ( checkNumberInputValue(elem) ){
 					orderedObject.luvers[elemName] = parseInt(elem.value);
+					
 				};
 			};
 		};
 	};
-	
+	//REFACTOR!!!
 	
 	
 	var getFormValues = function (event){
@@ -200,12 +193,47 @@
 	calcForm.addEventListener('change', function(e){
 		getFormValues(e);
 		//calculation ();	
+		console.log(e);
 		console.log(orderedObject);
 	});
 	
 	calcForm.addEventListener('submit', function(e){
 		e.preventDefault();		
 	});
+	
+	
+	
+	
+	var calcPerimetr = function (){
+		return (orderedObject.calcFormatWidth + orderedObject.calcFormatHeight) * 2;
+	}
+	
+	var calcPrintArea = function (){
+		return orderedObject.calcFormatWidth * orderedObject.calcFormatHeight * orderedObject.printCount;
+	}
+	
+	var calcLuversCount = function () {
+		var perimetr =  calcPerimetr();
+		
+	}	
+	
+	
+	
+	
+	
+	
+	
+	function calculation (){
+		var materialPrice = calcPrintArea() * materialsData[orderedObject.printMedia].price;
+		var printCost = calcPrintArea() * technologyData[orderedObject.printTech].price / 24;
+		var totalCost = materialPrice + printCost;
+		
+		
+		console.log('print area = ' + calcPrintArea() + ' m2');
+		console.log('price for square meters of material (without econom placeing) $' +materialPrice );
+		console.log('printing cost $' + printCost);
+		console.log('material and printing cost $' + totalCost);
+	}
 	
 	// AJAX exchange rates request
 	
@@ -227,12 +255,5 @@
 	
 	*/
 	
-	
-	function calculation (){
-			var copyPrintArea = formatWidth.value * formatHeight.value / 10000;
-			var totalPrintArea = copyPrintArea * quantity;
-		
-			console.log(totalPrintArea, 'm2');
-	}
 	
 })();
