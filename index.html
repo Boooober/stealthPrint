@@ -15,12 +15,12 @@
 			<ul>
 				<li>
 					<lable for="formCalcWidth">Ширина:</lable>
-					<input type="text" name="calcFormatWidth" id="calcFormatWidth" placeholder="0">, см
+					<input type="text" name="printWidth" id="printWidth" placeholder="0">, см
 					<p class="error"></p>
 				</li>
 				<li>
 					<lable for="formCalcHeight">Высота:</lable>
-					<input type="text" name="calcFormatHeight" id="calcFormatHeight" placeholder="0">, см
+					<input type="text" name="printHeight" id="printHeight" placeholder="0">, см
 					<p class="error"></p>
 				</li>
 			</ul>
@@ -86,7 +86,7 @@
 			<ul>
 				<li><p>Ламинация</p>
 				<select name="lamination">
-					<option disabled value="none" selected="selected">Выберите материал для ламинации</option>
+					<option value="none" selected="selected">Выберите материал для ламинации</option>
 					<option value="lam1">Обычная ламинация</option>
 					<option value="lam2">Ламинация монтажным трансфером</option>
 					<option value="lam3">Износостойкой пленкой</option>
@@ -98,9 +98,9 @@
 					<ul>
 						<li>
 						<lable for="luversBannerTuck">С подворотами</lable>
-						<input type="checkbox" name="luversBannerTuck" value="01">
+						<input type="checkbox" name="luversBannerTuck">
 						<lable for="glueBannerTuck">Подвороты с проклейкой</lable>
-						<input type="checkbox" name="glueBannerTuck" value="02"></li>
+						<input type="checkbox" name="glueBannerTuck"></li>
 					</ul>
 				</li>
 				<li><lable for="bannerWelding">Проварка банера</lable><input type="checkbox" name="bannerWelding"></li>

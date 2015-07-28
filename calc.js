@@ -4,8 +4,11 @@
 
 	var calcForm = document.getElementById('sptCalc'),
 		formatSelection = document.getElementById('formatSelect'),
-		formatWidth = document.getElementById('calcFormatWidth'),
-		formatHeight = document.getElementById('calcFormatHeight');
+		formatWidth = document.getElementById('printWidth'),
+		formatHeight = document.getElementById('printHeight');
+		
+	var elemName,
+		elemValue;
 		
 	var formats = {
 			custom:{"width":0,"height":0},
@@ -25,162 +28,138 @@
 			water:			{"price":75},		
 		},
 		materialsData = {  //DOL
-			cityLight:			{"price":0.5,"mediaWidth":[120, 160]},
-			blueBack:			{"price":0.5,"mediaWidth":[120, 160]},
-			litFrontlit:		{"price":2,"mediaWidth":[220,250,320,400,500]},	
-			lamFrontlit:		{"price":1,"mediaWidth":[220,250,320,400,500]},
-			backlit:			{"price":3,"mediaWidth":[220,250,320]},
-			blockout:			{"price":3,"mediaWidth":[160]},
-			mesh:				{"price":1.2,"mediaWidth":[160, 220,320, 400, 500]},
-			glossyFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
-			mattFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
-			transperentFilm:	{"price":1.5,"mediaWidth":[107, 127, 152, 160]},	
-			perfoFilm:			{"price":1.5,"mediaWidth":[107, 127, 152, 160]},
-			polyman:			{"price":3,"mediaWidth":[315]},
-			textile:			{"price":2,"mediaWidth":[100]},
-			pvc:				{"price":5,"mediaWidth":[205]},
-			composite:			{"price":7,"mediaWidth":[145]},		
-			glass:				{"price":7,"mediaWidth":[100]},	
-			acryl:				{"price":15,"mediaWidth":[205]},
-			wood:				{"price":5,"mediaWidth":[100]},
+			cityLight:			{"price":0.5,"width":[120, 160]},
+			blueBack:			{"price":0.5,"width":[120, 160]},
+			litFrontlit:		{"price":2,"width":[220,250,320,400,500]},	
+			lamFrontlit:		{"price":1,"width":[220,250,320,400,500]},
+			backlit:			{"price":3,"width":[220,250,320]},
+			blockout:			{"price":3,"width":[160]},
+			mesh:				{"price":1.2,"width":[160, 220,320, 400, 500]},
+			glossyFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
+			mattFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
+			transperentFilm:	{"price":1.5,"width":[107, 127, 152, 160]},	
+			perfoFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
+			polyman:			{"price":3,"width":[315]},
+			textile:			{"price":2,"width":[100]},
+			pvc:				{"price":5,"width":[205]},
+			composite:			{"price":7,"width":[145]},		
+			glass:				{"price":7,"width":[100]},	
+			acryl:				{"price":15,"width":[205]},
+			wood:				{"price":5,"width":[100]},
 			custom:				{"price":1}	
 		},
 		orderedObject = {}
 		
 		
-		
-		
-		
-		
-	var setFormatToInput = function (format){
-		formatWidth.value = orderedObject.calcFormatWidth = formats[format]['width'];
-		formatHeight.value = orderedObject.calcFormatHeight = formats[format]['height'];
-	};
-	
-
-	
-	//кучеряво Переделать! ~~~~~~~~~~~~~~~~~~
-	var setCalcNotification = function(elem){
-		elem.nextElementSibling.innerHTML = 'Введите корректную величину';
-		elem.validValue = false;
-		//if the element's value is not a number, set it's "validValue" property to false.
-	};
-	
-	var removeCalcNotification = function(elem){
-		elem.nextElementSibling.innerHTML = '';
-		elem.validValue = true;
-	};
-	var saveCustomFormat = function(){
-		if (formatWidth.validValue && formatHeight.validValue){
-			formats.custom.width = formatWidth.value;
-			formats.custom.height = formatHeight.value;
-			setCustomFormatOptionSelected();
-		};
-	};
-	//кучеряво ~~~~~~~~~~~~~~~~~~
-	var setCustomFormatOptionSelected = function(){
-		formatSelection.getElementsByTagName('option')[1].selected = 'selected';
-	}
-	
-	
-	// REFACTOR!!!
-	var setCalcFormat = function(elem){
-		if (elem.tagName === "INPUT"){
-			setInputValue(elem)
-				saveCustomFormat();
-				/* set format to orderedObject */
-			};
-		if (elem.tagName === "SELECT"){
-			setFormatToInput(elem.value);	
-		};
-	};
-	
-	
-
-	var checkNumberInputValue = function (elem){
-		if ( /^[0-9]*$/.test(elem.value) ) {
-				removeCalcNotification(elem);
-				return true;
-		} else {
-			setCalcNotification(elem);
-				return false;
-		};
-	};
-	
-	
-	var setInputValue = function (elem){
-		if ( checkNumberInputValue(elem) ){
-			orderedObject[elem.name] = parseInt(elem.value);	
-		};
-	};	
-	
-	var setCheckboxValue = function (elem){
-		if (elem.checked) orderedObject[elem.name] = true;
-		else 			  orderedObject[elem.name] = false;
-	};
-	
-	var setSelectedOptionValueToObject = function (elem){
-		var optionValue = elem.options[elem.options.selectedIndex].value;
-		orderedObject[elem.name] = optionValue;
-	};
-
-
-	
-	//REFACTOR!!!
-	var setObjectLuversValues = function(elem){
-		var elemName = elem.name;
-		
-		if (orderedObject.luvers === true )	orderedObject.luvers = new Object;
-		
-		if (typeof orderedObject.luvers === "object"){
-			if (elem.type === "checkbox"){				
-				orderedObject.luvers[elemName] = true;
-			} else if (elem.type === "text"){
-				
-				//same function - setInputValue()
-				if ( checkNumberInputValue(elem) ){
-					orderedObject.luvers[elemName] = parseInt(elem.value);
-					
-				};
-			};
-		};
-	};
-	//REFACTOR!!!
-	
-	
-	var getFormValues = function (event){
+	var setFormValues = function (event){
 		var elem = event.target;
-		var elemName = elem.name;
-		var elemTagName = elem.tagName;
+		elemName = elem.name;
+		elemValue = elem.value;
 
 		switch (elemName){
 			case 'formatSelect':
+				setSelectedFormatToInput(elemValue);
+				break;
 			case 'calcFormatWidth':
 			case 'calcFormatHeight':
-				setCalcFormat(elem);
-				break;
+				saveCustomFormat(elem);
 			case 'printCount':
+			case 'luversStep':
 				setInputValue(elem);
 				break;
 			case 'printTech':
 			case 'printMedia':
 			case 'lamination':
-				setSelectedOptionValueToObject(elem);
+				setSelectedOptionValue(elem);
 				break;
 			case 'photoQuality':
 			case 'bannerWelding':
 			case 'luvers':	
 			case 'plotterCut':
 			case 'plasticStitching':
-				setCheckboxValue(elem);
-				break;
-			case 'luversStep':
 			case 'luversBannerTuck':
 			case 'glueBannerTuck':
-				setObjectLuversValues(elem);
+				setCheckboxValue(elem);
 				break;
 		};
 	};
+		
+	var setInputValue = function(elem){
+		if ( checkNumericInputValue(elemValue) === true ) {
+			removeInputError(elem);
+			orderedObject[elemName] = parseInt(elemValue);
+		} else {
+			setInputError(elem);
+		};
+	};
+		
+	var setCheckboxValue = function (elem){
+		if (elem.checked) {
+			orderedObject[elemName] = true;
+		} else {
+			orderedObject[elemName] = false;
+		}	
+	};
+		
+	var setSelectedOptionValue = function (elem){
+		var optionValue = elem.options[elem.options.selectedIndex].value;
+		orderedObject[elemName] = optionValue;
+	};
+		
+	var checkNumericInputValue = function (string){
+		return /^[0-9]*$/.test(string);
+	};
+	
+	var setInputError = function(elem){
+		elem.nextElementSibling.innerHTML = 'Введите корректную величину';
+	};
+	var removeInputError = function(elem){
+		elem.nextElementSibling.innerHTML = '';
+	};
+	
+	var saveCustomFormat = function(){
+		if ( checkNumericInputValue(formatWidth.value) && checkNumericInputValue(formatHeight.value) ) {
+			formats.custom.width = formatWidth.value;
+			formats.custom.height = formatHeight.value;
+			setCustomFormatOptionSelected();
+		};
+	};
+
+	var setCustomFormatOptionSelected = function(){
+		formatSelection.getElementsByTagName('option')[0].selected = 'selected';
+	};
+
+	var setSelectedFormatToInput = function (format){
+		formatWidth.value = orderedObject.printWidth = formats[format]['width'];
+		formatHeight.value = orderedObject.printHeight = formats[format]['height'];
+	};
+
+	
+	//REFACTOR!!!
+	/*
+	var setObjectLuversValues = function(elem){	
+		if (orderedObject.luvers === true )	{
+			orderedObject.luvers = new Object;
+		}	
+		if (typeof orderedObject.luvers === "object"){
+
+			if (elem.type === "checkbox"){				
+				orderedObject.luvers[elemName] = true;
+			} else if (elem.type === "text"){
+				
+				//same function - setInputValue()
+				if ( checkNumericInputValue(elem.value) ){
+					orderedObject.luvers[elemName] = parseInt(elem.value);
+					
+				};
+			};
+		};
+	};
+	*/
+	//REFACTOR!!!
+	
+	
+
 	
 	
 	
@@ -191,10 +170,9 @@
 	
 
 	calcForm.addEventListener('change', function(e){
-		getFormValues(e);
-		//calculation ();	
-		console.log(e);
+		setFormValues(e);
 		console.log(orderedObject);
+		calculation ();	
 	});
 	
 	calcForm.addEventListener('submit', function(e){
@@ -202,20 +180,50 @@
 	});
 	
 	
+	/*
+	var calcPrintArea = function (){
+		if ( orderedObject.printWidth && orderedObject.printHeight && orderedObject.printCount != 'undefined'){
+			return orderedObject.printWidth * orderedObject.printHeight * orderedObject.printCount;
+		} else return "Не достаточно даных для расчета площади печати";
+	};
+	*/
 	
+	var getOptimalRollWidth = function (){
+		if ( orderedObject.printMedia != undefined ) {
+			
+			var mediaWidthArr = materialsData[orderedObject.printMedia].width,
+				printHeight = orderedObject.printHeight,
+				printWidth = orderedObject.printWidth;
+				
+			
+			for (var i = 0, len = mediaWidthArr.length; i < len; i++ ){
+				console.log(mediaWidthArr[i] / printHeight);
+				console.log(mediaWidthArr[i] / printWidth);
+				
+				//must be greater than 1
+			};
+			
+			return;
+		};
+		console.log('Не выбран материал для печати');
+	};
+	
+	var getPrintLength = function(){
+		
+	}
+	
+	var calcMediaRemainder = function(){
+	};
 	
 	var calcPerimetr = function (){
-		return (orderedObject.calcFormatWidth + orderedObject.calcFormatHeight) * 2;
-	}
+		return (orderedObject.printWidth + orderedObject.printHeight) * 2;
+	};
 	
-	var calcPrintArea = function (){
-		return orderedObject.calcFormatWidth * orderedObject.calcFormatHeight * orderedObject.printCount;
-	}
 	
 	var calcLuversCount = function () {
 		var perimetr =  calcPerimetr();
 		
-	}	
+	};	
 	
 	
 	
@@ -224,15 +232,15 @@
 	
 	
 	function calculation (){
-		var materialPrice = calcPrintArea() * materialsData[orderedObject.printMedia].price;
-		var printCost = calcPrintArea() * technologyData[orderedObject.printTech].price / 24;
-		var totalCost = materialPrice + printCost;
+	//	var materialPrice = calcPrintArea() * materialsData[orderedObject.printMedia].price;
+	//	var printCost = calcPrintArea() * technologyData[orderedObject.printTech].price / 24;
+	//	var totalCost = materialPrice + printCost;
 		
-		
-		console.log('print area = ' + calcPrintArea() + ' m2');
-		console.log('price for square meters of material (without econom placeing) $' +materialPrice );
-		console.log('printing cost $' + printCost);
-		console.log('material and printing cost $' + totalCost);
+		getOptimalRollWidth();
+		//console.log('print area = ' + calcPrintArea() + ' m2');
+		//onsole.log('price for square meters of material (without econom placeing) $' +materialPrice );
+		//console.log('printing cost $' + printCost);
+		//console.log('material and printing cost $' + totalCost);
 	}
 	
 	// AJAX exchange rates request
