@@ -1,0 +1,122 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	
+	<style>
+		#media {margin: 0 auto;border: 1px solid green;padding-top:5px;}
+		#media:after{content:"";display:block;clear:both}
+		#media_size {width:100%;text-align:center;border:1px dashed green; margin-bottom:5px;box-sizing:border-box;}
+		.element {background-color:green;box-sizing:border-box;border:1px solid red;float:left}
+	</style>
+</head>
+<body>
+
+	<div id="media">
+		<div id="media_size">
+	</div>
+
+<script>
+
+	var media = document.getElementById('media');
+	var mediaSize = document.getElementById('media_size');
+	
+	var printWidth = 42,
+		printHeight = 63,
+		mediaWidth = [127,160],
+		printCount = 6;
+		
+	var optimalMediaObj = {};
+		
+	var getMediaCoefs = function (mediaWidth, printSide){
+		var dataObj = new Object;
+		
+		dataObj.coef = mediaWidth / printSide;
+		if (dataObj.coef >= 1){
+			dataObj.mediaCapacity = Math.floor(dataObj.coef);
+			dataObj.mediaRest = mediaWidth - dataObj.mediaCapacity * printSide;
+			dataObj.printRest = printCount % dataObj.mediaCapacity;
+		
+			return dataObj;
+		};
+		return 'Current print side doesn`t match the media';
+	};
+	
+	var getLineUpStatus = function (mediaCoefs){
+		if (printCount - mediaCoefs.printRest === printCount){
+		//	console.log('ѕо заданой стороне размещены все возможные копии.');
+		//	console.log('All possible copies with current side are placed across the materials width.');
+			return 'complite line-up';
+		}else if (printCount - mediaCoefs.printRest === 0){
+		//	console.log('–азмещено копий меньше, чем это возможно.');
+		//	console.log('Placed fewer copies than it is possible.');
+			return 'incomplite line-up';
+		}else if (printCount - mediaCoefs.printRest < printCount && printCount - mediaCoefs.printRest > mediaCoefs.printRest ){
+		//	console.log('„асть файлов с заданой стороной размещены на всю ширину материала, друга€ часть может быть размещена лучше.');
+		//	console.log('Part of the copies with current side are placed across the width of the material, the other part can be placed better.');
+			return 'combined line-up';
+		} else {
+		//	console.log('‘айл невозможно разместить на даной ширине материала');
+			console.log('File can`t be placed across the width of the material');
+		}
+	}
+		
+	for (var i = 0, mediaWidthCount = mediaWidth.length; i < mediaWidthCount; i++){
+		console.log('This is ' + mediaWidth[i] + ' media.', 'Print count: ' + printCount );
+		
+		var widthSide = getMediaCoefs(mediaWidth[i], printWidth);
+		var heightSide = getMediaCoefs(mediaWidth[i], printHeight);
+		
+		console.log(widthSide);
+		console.log(heightSide);
+	
+		var widthLineUpStatus = getLineUpStatus(widthSide);
+		var heightLineUpStatus = getLineUpStatus(heightSide);
+		
+		if ( widthLineUpStatus === 'complite line-up' || heightLineUpStatus === 'complite line-up' ) {
+			
+			console.log('All possible copies with current side are placed across the materials width.');
+			if (widthSide.mediaRest <= heightSide.mediaRest && widthSide.printRest < heightSide.printRest ) {
+				console.log('Optimal placement ' + printWidth + ' on ' + mediaWidth[i] + ' media width.');
+			} else if (widthSide.mediaRest >= heightSide.mediaRest && widthSide.printRest > heightSide.printRest){
+				console.log('Optimal placement ' + printHeight + ' on ' + mediaWidth[i] + ' media width.');
+			} else if (widthSide.mediaRest === heightSide.mediaRest && widthSide.printRest === heightSide.printRest){
+				console.log('Optimal placement ' + printWidth + ' on ' + mediaWidth[i] + ' media width.');
+			}
+		} else if (widthLineUpStatus === 'incomplite line-up'){	
+			console.log('Placed fewer copies than it is possible.');
+		} else if (widthLineUpStatus === 'combined line-up'){
+			console.log('Part of the copies with current side are placed across the width of the material, the other part can be placed better.');
+			
+			if (widthSide.mediaRest <= heightSide.mediaRest && widthSide.printRest >= heightSide.mediaCapacity ) {
+				var fistOrientationCount = printCount - widthSide.printRest;
+				var secondOrientationCount = printCount - fistOrientationCount;
+				console.log('Optimal placement ' + printWidth + ' on ' + mediaWidth[i] + ' media width.', fistOrientationCount + ' pieces');
+				console.log('AND');
+				console.log('Optimal placement ' + printHeight + ' on ' + mediaWidth[i] + ' media width.', secondOrientationCount + ' pieces');
+				
+			} else if (widthSide.mediaRest >= heightSide.mediaRest){
+				console.log('Optimal placement ' + printHeight + ' on ' + mediaWidth[i] + ' media width.');
+			}
+			
+		}	
+	}
+	
+		var scale = 3;
+		media.style.width = mediaWidth[0]*scale;
+		mediaSize.innerHTML = mediaWidth[0];
+		
+		
+		for (var i = 0; i < printCount; i++ ){
+		var mediaPrintElement = document.createElement('div');
+		mediaPrintElement.className = 'element';
+		mediaPrintElement.innerHTML = printWidth + 'x' + printHeight;
+		mediaPrintElement.style.width = printWidth*scale;
+		mediaPrintElement.style.height = printHeight*scale;
+			media.appendChild(mediaPrintElement);
+		}
+	
+
+</script>
+
+</body>
+</html>
