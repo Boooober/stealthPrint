@@ -38,7 +38,7 @@
 			glossyFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
 			mattFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
 			transperentFilm:	{"price":1.5,"width":[107, 127, 152, 160]},	
-			perfoFilm:			{"price":1.5,"width":[107, 127, 152, 160]},
+			perfoFilm:			{"price":1.5,"width":[105, 127, 137, 152]},
 			polyman:			{"price":3,"width":[315]},
 			textile:			{"price":2,"width":[100]},
 			pvc:				{"price":5,"width":[205]},
