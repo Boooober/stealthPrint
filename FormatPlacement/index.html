@@ -65,7 +65,6 @@
 		this.coef = mediaWidth / horizontalSide;
 		this.mediaCapacity = Math.floor(this.coef);
 		if (this.mediaCapacity != 0) {
-			this.mediaRest = mediaWidth - this.mediaCapacity * horizontalSide;
 			this.copiesRest = printCount % this.mediaCapacity;
 		};
 		this.printCount = printCount;
@@ -76,144 +75,141 @@
 	
 	
 	
-	var lineUp = function (widthObj, heightObj, optimalLength){
+	var lineUp = function (wObj, hObj, optimalLength, optimalMedia, mediaWidth){
+	
+	//	console.log('-------This is ' + mediaWidth + ' media-------');
+	
+	
+		//Calculation of printLength
+		var rotPrintLengthW = 0, rotPrintLengthH = 0, strPrintLengthW = 0, strPrintLengthH = 0;
 		
-			var printLength = optimalLength.calcPrintLength(widthObj, heightObj);
-			optimalLength.setPrintLength(printLength);
-
+		if (wObj.mediaCapacity != 0){
+			rotPrintLengthW = optimalLength.calcRotPrintLength(wObj, hObj);
+			strPrintLengthW = optimalLength.calcStrPrintLength(wObj);
+		};	
+		if (hObj.mediaCapacity != 0){
+			rotPrintLengthH = optimalLength.calcRotPrintLength(hObj, wObj);
+			strPrintLengthH = optimalLength.calcStrPrintLength(hObj);
+		};
+		
+		// Rotate rest copies to calculate summary print length. Select optimal length by comparing each other.
+		var optimalRotPrintLength = optimalLength.returnMinValue(rotPrintLengthW, rotPrintLengthH);
+		// Straight orientation of rest copies. Calculate optimal straight length and compare each other.
+		var optimalStrPrintLength = optimalLength.returnMinValue(strPrintLengthW, strPrintLengthH);
+		var optimalPrintLength = optimalLength.returnMinValue(optimalRotPrintLength, optimalStrPrintLength);
+		
+		
+		
+		//Calculation of printSquare
+		var mediaSquare = optimalPrintLength * mediaWidth;
+		var printSquare = wObj.horizontalSide * wObj.verticalSide * wObj.printCount;
+		var restSquare = mediaSquare - printSquare;
+		
+		if (optimalMedia.checkMinSquare(restSquare) === true){
+			optimalMedia.setRestSquare(restSquare);
+			optimalMedia.setPrintSquare(printSquare);
+			optimalMedia.setMediaWidth(mediaWidth);
+			optimalMedia.setPrintLength(optimalPrintLength);
+		};
 	};
 	
 	
-	
-	
-	
-	
-	
-	
-	
-
-	var optimalPrintLength = function (){
-	
-		this.value = 0;
+	var PrintLengthObj = function (){
 		
-		this.calcLineUpLength = function (lengthSide, printCount, mediaCapacity){
-			mediaCapacity = mediaCapacity || 1;
-			console.log(mediaCapacity, 'MediaCapacity in this case')
-			return lengthSide * printCount / mediaCapacity;
+		// This method calculates count of copies lines in media.
+		this.calcCountOfLines = function (copies, mediaCapacity){
+			return Math.ceil( copies / mediaCapacity );
+		};
+
+		// This method calculates straight length of print in cm.
+		this.calcStrPrintLength = function (w){
+			var linesCount = this.calcCountOfLines(w.printCount, w.mediaCapacity);
+			var printLength = linesCount * w.verticalSide;
+			return printLength;
 		};
 		
+		// This method calculates length of line up that contains straight and rotated (rest) copies in cm.
+		this.calcRotPrintLength = function (w, h){
 		
+			// ƒелим на две части - влазит полность по mediaCapacity и остаток, который не влазит
+			var strCount = w.printCount - w.copiesRest;
+			var rotCount = w.copiesRest;
 		
-		
-		
-		
-		
-		
-		
-		// REFACTOR!!!
-		
-		this.calcPrintLength = function (widthObj, heightObj){
+			// –асчитываем количество полных линий на материале, которые заполн€ют пр€мые и повернутые копии 
+			var strLinesCount = this.calcCountOfLines(strCount, w.mediaCapacity);
+			var rotLinesCount = this.calcCountOfLines(rotCount, h.mediaCapacity);
+			
+			// –асчитываем погонную длинну материала дл€ пр€мых и повернутых копий
+			var strLength = strLinesCount * w.verticalSide;
+			var rotLength = rotLinesCount * h.verticalSide;
+			
+			// –асчитываем общую длинну печати пр€мых и повернутых копий
+			var sumPrintLength = strLength + rotLength;
 
-		// количество копий, которые полностью заполн€ют ширину материала
-			var widthCopiesMainCount = widthObj.printCount - widthObj.copiesRest;
-			var heightCopiesMainCount = widthObj.printCount - heightObj.copiesRest;
-			
-			
-			
-			/*	
-			//≈сли файл не влазит в рулон, то copiesRest не существует. Ќужна проверка. ћетод не работает.
-			//–азбить на метод, который присвоит переменным разные CopiesSumPrintLength
-			if (mediaCapacity != 0){
-			
-			}else{
-				return 'impossible to line up fils on current media';
-			};
-			*/
-			
-			
-			console.log(widthCopiesMainCount, 'widthCopiesMainCount');
-			console.log(heightCopiesMainCount, 'heightCopiesMainCount');
-			
-		// погонные метры копий, которые полностью заполнили рулон
-			var widthCopiesMainPrintLength = this.calcLineUpLength( widthObj.verticalSide, widthCopiesMainCount, widthObj.mediaCapacity );
-			var heightCopiesMainPrintLength = this.calcLineUpLength( heightObj.verticalSide, heightCopiesMainCount, heightObj.mediaCapacity );
-
-			console.log(widthCopiesMainPrintLength, 'widthCopiesMainPrintLength');
-			console.log(heightCopiesMainPrintLength, 'heightCopiesMainPrintLength');
-				
-		// ѕровер€ем есть ли копии, которые не заполнили рулон и есть возможность развернуть файлы другой стороной. —читаем их погонные метры
-			if ( heightObj.mediaCapacity != 0 && widthObj.copiesRest % heightObj.mediaCapacity <= widthObj.copiesRest ){
-				var widthRestLinesCount = this.calcCountOfRestLines(widthObj.copiesRest, heightObj.mediaCapacity );
-				var widthCopiesRestPrintLength = this.calcLineUpLength(widthObj.horizontalSide, widthRestLinesCount);
-			} else {
-				
-			};
-			
-			if ( widthObj.mediaCapacity != 0 && heightObj.copiesRest % widthObj.mediaCapacity <= heightObj.copiesRest ){
-				var heightRestLinesCount = this.calcCountOfRestLines(heightObj.copiesRest, widthObj.mediaCapacity );
-				var heightCopiesRestPrintLength = this.calcLineUpLength(heightObj.horizontalSide, heightRestLinesCount);
-			};
-			
-			var widthCopiesSumPrintLength = widthCopiesMainPrintLength + widthCopiesRestPrintLength;
-			var heightCopiesSumPrintLength = heightCopiesMainPrintLength + heightCopiesRestPrintLength;
-				console.log(widthCopiesSumPrintLength, 'widthCopiesSumPrintLength');
-				console.log(heightCopiesSumPrintLength, 'heightCopiesSumPrintLength');
-
-			if ( widthCopiesSumPrintLength <= heightCopiesSumPrintLength ) {
-				return widthCopiesSumPrintLength;
-			} else {
-				return heightCopiesSumPrintLength;
-			};
+			return sumPrintLength;			
 		};
 		
-		// REFACTOR!!!
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		this.calcCountOfRestLines = function (restCopies, mediaCapacity){
-			return Math.ceil( restCopies / mediaCapacity );
-		};
-		
-		this.setPrintLength = function(printLength){
-			if ( this.value == 0 || this.value > printLength) {
-				this.value = printLength;
+		this.returnMinValue = function (v1, v2){
+			if (v1 != 0 && v2 != 0){
+				if (v1 <= v2) {
+					return v1;
+				} else {
+					return v2;
+				};
 			};
+			if (v1 == 0 && v2 != 0) return v2;
+			if (v2 == 0 && v1 != 0) return v1;			
+			if (v2 == 0 && v1 == 0) return 0;			
 		};
-		
 		
 	
-	}
+	};
 	
+	var OptimalMediaObj = function(){
+		this.restSquare = 0;
+		
+		this.checkMinSquare = function (currentValue){
+			if ( this.restSquare == 0 || currentValue < this.restSquare ){
+				return true;
+			};
+			return false;
+		};
+		
+		this.setRestSquare = function (currentValue){
+			this.restSquare = currentValue;
+		};
+		
+		this.setPrintSquare = function (currentValue){
+			this.printSquare = currentValue;
+		};
+		
+		this.setMediaWidth = function (currentValue){
+			this.mediaWidth = currentValue;
+		};
+		
+		this.setPrintLength = function (currentValue){
+			this.printLength = currentValue;
+		};
+	};
 
 	function calc (){
 		
-		var optimalLength = new optimalPrintLength();
+		var optimalLength = new PrintLengthObj();
+		var optimalMedia = new OptimalMediaObj();
+		
 		// ѕри каждом пересчете обнул€ем результаты предыдущих вычислений перед циклом
 		
 		for ( var i = 0, medias = mediaWidthArr.length; i < medias; i++ ){
-			var widthObj = new SetObjParams(printWidth, printHeight, mediaWidthArr[i], printCount); //horizontalSide, verticalSide, mediaWidth and printCount
-			var heightObj = new SetObjParams(printHeight, printWidth, mediaWidthArr[i], printCount);
+			var wObj = new SetObjParams(printWidth, printHeight, mediaWidthArr[i], printCount); //horizontalSide, verticalSide, mediaWidth and printCount
+			var hObj = new SetObjParams(printHeight, printWidth, mediaWidthArr[i], printCount);
 			
-			lineUp(widthObj, heightObj, optimalLength);
-			
-			console.log(widthObj);
-			console.log(heightObj);
-			console.log(optimalLength.value, 'optPrintLength');
-			
-			
+			lineUp(wObj, hObj, optimalLength, optimalMedia, mediaWidthArr[i]);
+
 		};	
 		
-		console.log('------------==================------------------');
-		console.log('------------==================------------------');
-		console.log('------------==================------------------');
+				console.log(optimalMedia);
+		
+		
 	};
 
 </script>
