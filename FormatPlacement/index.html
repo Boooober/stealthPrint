@@ -59,6 +59,25 @@
 		calc();
 	});
 	
+	function calc (){
+		
+		var optimalLength = PrintLengthObj; //REFACTOR!
+		var optimalMedia = new OptimalMediaObj();
+		
+		// При каждом пересчете обнуляем результаты предыдущих вычислений перед циклом
+		
+		for ( var i = 0, medias = mediaWidthArr.length; i < medias; i++ ){
+			var wObj = new SetObjParams(printWidth, printHeight, mediaWidthArr[i], printCount); //horizontalSide, verticalSide, mediaWidth and printCount
+			var hObj = new SetObjParams(printHeight, printWidth, mediaWidthArr[i], printCount);
+			
+			lineUp(wObj, hObj, optimalLength, optimalMedia, mediaWidthArr[i]);
+
+		};	
+		
+				console.log(optimalMedia);
+		
+		
+	};
 	
 	var SetObjParams = function (horizontalSide, verticalSide, mediaWidth, printCount){		
 		
@@ -79,27 +98,10 @@
 	
 	//	console.log('-------This is ' + mediaWidth + ' media-------');
 	
-	
+		
 		//Calculation of printLength
-		var rotPrintLengthW = 0, rotPrintLengthH = 0, strPrintLengthW = 0, strPrintLengthH = 0;
-		
-		if (wObj.mediaCapacity != 0){
-			rotPrintLengthW = optimalLength.calcRotPrintLength(wObj, hObj);
-			strPrintLengthW = optimalLength.calcStrPrintLength(wObj);
-		};	
-		if (hObj.mediaCapacity != 0){
-			rotPrintLengthH = optimalLength.calcRotPrintLength(hObj, wObj);
-			strPrintLengthH = optimalLength.calcStrPrintLength(hObj);
-		};
-		
-		// Rotate rest copies to calculate summary print length. Select optimal length by comparing each other.
-		var optimalRotPrintLength = optimalLength.returnMinValue(rotPrintLengthW, rotPrintLengthH);
-		// Straight orientation of rest copies. Calculate optimal straight length and compare each other.
-		var optimalStrPrintLength = optimalLength.returnMinValue(strPrintLengthW, strPrintLengthH);
-		var optimalPrintLength = optimalLength.returnMinValue(optimalRotPrintLength, optimalStrPrintLength);
-		
-		
-		
+		var optimalPrintLength = optimalLength.calcOptPrintLength (wObj, hObj);
+	
 		//Calculation of printSquare
 		var mediaSquare = optimalPrintLength * mediaWidth;
 		var printSquare = wObj.horizontalSide * wObj.verticalSide * wObj.printCount;
@@ -114,22 +116,24 @@
 	};
 	
 	
-	var PrintLengthObj = function (){
+	
+	
+	var PrintLengthObj = {
 		
 		// This method calculates count of copies lines in media.
-		this.calcCountOfLines = function (copies, mediaCapacity){
+		calcCountOfLines : function (copies, mediaCapacity){
 			return Math.ceil( copies / mediaCapacity );
-		};
+		},
 
 		// This method calculates straight length of print in cm.
-		this.calcStrPrintLength = function (w){
+		calcStrPrintLength : function (w){
 			var linesCount = this.calcCountOfLines(w.printCount, w.mediaCapacity);
 			var printLength = linesCount * w.verticalSide;
 			return printLength;
-		};
+		},
 		
 		// This method calculates length of line up that contains straight and rotated (rest) copies in cm.
-		this.calcRotPrintLength = function (w, h){
+		calcRotPrintLength : function (w, h){
 		
 			// Делим на две части - влазит полность по mediaCapacity и остаток, который не влазит
 			var strCount = w.printCount - w.copiesRest;
@@ -147,9 +151,31 @@
 			var sumPrintLength = strLength + rotLength;
 
 			return sumPrintLength;			
-		};
+		},
 		
-		this.returnMinValue = function (v1, v2){
+		calcOptPrintLength: function(w, h) {
+			var rotPrintLengthW = 0, rotPrintLengthH = 0, strPrintLengthW = 0, strPrintLengthH = 0;
+			
+			if (w.mediaCapacity != 0){
+				rotPrintLengthW = this.calcRotPrintLength(w, h);
+				strPrintLengthW = this.calcStrPrintLength(w);
+			}; 
+			
+			if (h.mediaCapacity != 0){
+				rotPrintLengthH = this.calcRotPrintLength(h, w);
+				strPrintLengthH = this.calcStrPrintLength(h);
+			};
+			
+			// Rotate rest copies to calculate summary print length. Select optimal length by comparing each other.
+			var optimalRotPrintLength = this.returnMinValue(rotPrintLengthW, rotPrintLengthH);
+			// Straight orientation of rest copies. Calculate optimal straight length and compare each other.
+			var optimalStrPrintLength = this.returnMinValue(strPrintLengthW, strPrintLengthH);
+			var optimalPrintLength = this.returnMinValue(optimalRotPrintLength, optimalStrPrintLength);
+			
+			return optimalPrintLength;
+		},
+		
+		returnMinValue : function (v1, v2){
 			if (v1 != 0 && v2 != 0){
 				if (v1 <= v2) {
 					return v1;
@@ -157,10 +183,10 @@
 					return v2;
 				};
 			};
-			if (v1 == 0 && v2 != 0) return v2;
-			if (v2 == 0 && v1 != 0) return v1;			
-			if (v2 == 0 && v1 == 0) return 0;			
-		};
+			if (v1 === 0 && v2 != 0) return v2;
+			if (v2 === 0 && v1 != 0) return v1;			
+			if (v2 === 0 && v1 === 0) return 0;			
+		}
 		
 	
 	};
@@ -192,25 +218,8 @@
 		};
 	};
 
-	function calc (){
-		
-		var optimalLength = new PrintLengthObj();
-		var optimalMedia = new OptimalMediaObj();
-		
-		// При каждом пересчете обнуляем результаты предыдущих вычислений перед циклом
-		
-		for ( var i = 0, medias = mediaWidthArr.length; i < medias; i++ ){
-			var wObj = new SetObjParams(printWidth, printHeight, mediaWidthArr[i], printCount); //horizontalSide, verticalSide, mediaWidth and printCount
-			var hObj = new SetObjParams(printHeight, printWidth, mediaWidthArr[i], printCount);
-			
-			lineUp(wObj, hObj, optimalLength, optimalMedia, mediaWidthArr[i]);
+	
 
-		};	
-		
-				console.log(optimalMedia);
-		
-		
-	};
 
 </script>
 
