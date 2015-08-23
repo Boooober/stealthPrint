@@ -172,53 +172,18 @@
 	calcForm.addEventListener('change', function(e){
 		setFormValues(e);
 		console.log(orderedObject);
-		calculation ();	
+
 	});
 	
 	calcForm.addEventListener('submit', function(e){
 		e.preventDefault();		
 	});
 	
+
+
 	
-	/*
-	var calcPrintArea = function (){
-		if ( orderedObject.printWidth && orderedObject.printHeight && orderedObject.printCount != 'undefined'){
-			return orderedObject.printWidth * orderedObject.printHeight * orderedObject.printCount;
-		} else return "Не достаточно даных для расчета площади печати";
-	};
-	*/
-	
-	var getOptimalRollWidth = function (){
-		if ( orderedObject.printMedia != undefined ) {
-			
-			var mediaWidthArr = materialsData[orderedObject.printMedia].width,
-				printHeight = orderedObject.printHeight,
-				printWidth = orderedObject.printWidth;
-				
-			
-			for (var i = 0, len = mediaWidthArr.length; i < len; i++ ){
-				console.log(mediaWidthArr[i] / printHeight);
-				console.log(mediaWidthArr[i] / printWidth);
-				
-				//must be greater than 1
-			};
-			
-			return;
-		};
-		console.log('Не выбран материал для печати');
-	};
-	
-	var getPrintLength = function(){
-		
-	}
-	
-	var calcMediaRemainder = function(){
-	};
-	
-	var calcPerimetr = function (){
-		return (orderedObject.printWidth + orderedObject.printHeight) * 2;
-	};
-	
+
+
 	
 	var calcLuversCount = function () {
 		var perimetr =  calcPerimetr();
@@ -231,17 +196,6 @@
 	
 	
 	
-	function calculation (){
-	//	var materialPrice = calcPrintArea() * materialsData[orderedObject.printMedia].price;
-	//	var printCost = calcPrintArea() * technologyData[orderedObject.printTech].price / 24;
-	//	var totalCost = materialPrice + printCost;
-		
-		getOptimalRollWidth();
-		//console.log('print area = ' + calcPrintArea() + ' m2');
-		//onsole.log('price for square meters of material (without econom placeing) $' +materialPrice );
-		//console.log('printing cost $' + printCost);
-		//console.log('material and printing cost $' + totalCost);
-	}
 	
 	// AJAX exchange rates request
 	

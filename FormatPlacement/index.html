@@ -4,11 +4,16 @@
 	
 	<style>
 		body {position:relative}
-		#form {position:absolute; top:10px; left:10px}
-		#media {margin: 0 auto;border: 1px solid green;padding-top:5px;}
-		#media:after{content:"";display:block;clear:both}
-		#media_size {width:100%;text-align:center;border:1px dashed green; margin-bottom:5px;box-sizing:border-box;}
+		#form {display:block;float:left}
+		#formats {display:block; margin-left: 200px;}
+		#media-types {margin:0 auto}
+		.media {float:left; margin: 0 20px 20px;border: 1px solid green;padding-top:5px;}
+		.media:after{content:"";display:block;clear:both}
+		.media_size {width:100%;text-align:center;border:1px dashed green; margin-bottom:5px;box-sizing:border-box;}
 		.element {background-color:green;box-sizing:border-box;border:1px solid red;float:left}
+		.info p {margin:5px;}
+		.cf:before, .cf:after {content:'';display:block;}
+		.cf:after{clear:both}
 		
 		
 	</style>
@@ -16,210 +21,322 @@
 <body>
 
 	<form id="form">
-		width<input type="text" id="width" value="41"><br /><br />
+		width<input type="text" id="width" value="42"><br /><br />
 		height<input type="text" id="height" value="63"><br /><br />
 		count<input type="text" id="count" value="5"><br /><br />
 	</form>
 	
-	<!--
-	<div id="media">
-		<div id="media_size"></div>
+	<div id="formats">
+		<div id="media-types" class="cf">
 	</div>
-	-->
+	</div>
+
 	
 <script>
-	
-	var media = document.getElementById('media');
-	var mediaSize = document.getElementById('media_size');
-	var form = document.getElementById('form');
-	
-	var printWidth = 41,
-		printHeight = 63,
-		printCount = 5,
-		mediaWidthArr = [127,160];
-		
-	
-		
-	form.addEventListener('change', function(e){
-		var elem = e.target;
-		
-		switch (elem.id){
-			case 'width':
-				printWidth = parseInt(document.getElementById('width').value);
-				break;
-			case 'height':
-				printHeight = parseInt(document.getElementById('height').value);
-				break;
-			case 'count':
-				printCount = parseInt(document.getElementById('count').value);
-				break;
-		}
-		
-		
-		calc();
-	});
-	
-	function calc (){
-		
-		var optimalLength = PrintLengthObj; //REFACTOR!
-		var optimalMedia = new OptimalMediaObj();
-		
-		// ѕри каждом пересчете обнул€ем результаты предыдущих вычислений перед циклом
-		
-		for ( var i = 0, medias = mediaWidthArr.length; i < medias; i++ ){
-			var wObj = new SetObjParams(printWidth, printHeight, mediaWidthArr[i], printCount); //horizontalSide, verticalSide, mediaWidth and printCount
-			var hObj = new SetObjParams(printHeight, printWidth, mediaWidthArr[i], printCount);
-			
-			lineUp(wObj, hObj, optimalLength, optimalMedia, mediaWidthArr[i]);
+var orderedObject = {mediaWidthArr:[127,152,160]};
 
-		};	
-		
-				console.log(optimalMedia);
-		
-		
+window.addEventListener('load', function(){
+	orderedObject.printWidth = parseInt(document.getElementById('width').value);
+	orderedObject.printHeight = parseInt(document.getElementById('height').value);
+	orderedObject.printCount = parseInt(document.getElementById('count').value);
+
+	runModule();
+});
+form.addEventListener('change', function(e){
+	var elem = e.target, f = {};
+	switch (elem.id){
+		case 'width':
+		case 'height':
+		case 'count':
+			orderedObject.printWidth = parseInt(document.getElementById('width').value);
+			orderedObject.printHeight = parseInt(document.getElementById('height').value);
+			orderedObject.printCount = parseInt(document.getElementById('count').value);
+			break;
+	};
+	formatPlacement.redraw();
+	runModule();
+});
+function runModule(){
+	formatPlacement.setData(orderedObject);
+	formatPlacement.getResult();
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var formatPlacement = (function(){
+	
+	var formatData = {};
+	
+	
+	/**
+		Module interface method to set up required format data
+	**/
+	var setFormatData = function (args){
+		formatData.width = args.printWidth;
+		formatData.height = args.printHeight;
+		formatData.count = args.printCount;
+		formatData.mediaWidthArr = args.mediaWidthArr;
 	};
 	
-	var SetObjParams = function (horizontalSide, verticalSide, mediaWidth, printCount){		
-		
-		this.coef = mediaWidth / horizontalSide;
-		this.mediaCapacity = Math.floor(this.coef);
+	/**
+		FitDataObj - Retrieves necessary data with additional information about placement.
+		Create useful structure for comparison and fit visualization.
+	**/
+	var FitDataObj = function (whObj){
+		this.mediaRestSquare = getRestSquare(whObj);
+		this.arr = [{
+					width:whObj.width,
+					height:whObj.height,
+					count:whObj.completeLinedCount
+					}];
+		if(whObj.mediaCoef === whObj.mediaCapacity){
+			this.arr[0].edgeToEdge = true;
+		};
+	};
+	
+	/**
+		StoreObj returns compound object that contains concatenated optimal placement variants from FitDataObj.
+		Contains the result returned by recursion.
+	**/
+	var StoreObj = function(whObj){
+			this.mediaWidth = whObj.mediaWidth;
+			this.mediaRestSquare = 0;
+			this.arr = [];
+		};
+	
+	/** 
+		SetObjParams - constructor, that contains relations between the current media width and current file size.
+		It is used for creating wObj and hObj, to fit copies on the media 
+	**/
+	var SetObjParams = function (width, height, mediaWidth, printCount){				
+		this.width = width;
+		this.height = height;
+		this.mediaWidth = mediaWidth;
+		this.mediaCoef = this.mediaWidth / this.width
+		this.mediaCapacity = parseInt(this.mediaCoef);
+		this.totalCount = printCount;
 		if (this.mediaCapacity != 0) {
-			this.copiesRest = printCount % this.mediaCapacity;
-		};
-		this.printCount = printCount;
-		this.horizontalSide = horizontalSide;
-		this.verticalSide = verticalSide;
-	};
-
-	
-	
-	
-	var lineUp = function (wObj, hObj, optimalLength, optimalMedia, mediaWidth){
-	
-	//	console.log('-------This is ' + mediaWidth + ' media-------');
-	
-		
-		//Calculation of printLength
-		var optimalPrintLength = optimalLength.calcOptPrintLength (wObj, hObj);
-	
-		//Calculation of printSquare
-		var mediaSquare = optimalPrintLength * mediaWidth;
-		var printSquare = wObj.horizontalSide * wObj.verticalSide * wObj.printCount;
-		var restSquare = mediaSquare - printSquare;
-		
-		if (optimalMedia.checkMinSquare(restSquare) === true){
-			optimalMedia.setRestSquare(restSquare);
-			optimalMedia.setPrintSquare(printSquare);
-			optimalMedia.setMediaWidth(mediaWidth);
-			optimalMedia.setPrintLength(optimalPrintLength);
+			this.restCount = this.totalCount % this.mediaCapacity;
+			if(this.totalCount === this.restCount){
+				this.restCount = 0;
+			};
+			this.completeLinedCount = this.totalCount - this.restCount;
 		};
 	};
 	
-	
-	
-	
-	var PrintLengthObj = {
-		
-		// This method calculates count of copies lines in media.
-		calcCountOfLines : function (copies, mediaCapacity){
-			return Math.ceil( copies / mediaCapacity );
-		},
 
-		// This method calculates straight length of print in cm.
-		calcStrPrintLength : function (w){
-			var linesCount = this.calcCountOfLines(w.printCount, w.mediaCapacity);
-			var printLength = linesCount * w.verticalSide;
-			return printLength;
-		},
-		
-		// This method calculates length of line up that contains straight and rotated (rest) copies in cm.
-		calcRotPrintLength : function (w, h){
-		
-			// ƒелим на две части - влазит полность по mediaCapacity и остаток, который не влазит
-			var strCount = w.printCount - w.copiesRest;
-			var rotCount = w.copiesRest;
-		
-			// –асчитываем количество полных линий на материале, которые заполн€ют пр€мые и повернутые копии 
-			var strLinesCount = this.calcCountOfLines(strCount, w.mediaCapacity);
-			var rotLinesCount = this.calcCountOfLines(rotCount, h.mediaCapacity);
-			
-			// –асчитываем погонную длинну материала дл€ пр€мых и повернутых копий
-			var strLength = strLinesCount * w.verticalSide;
-			var rotLength = rotLinesCount * h.verticalSide;
-			
-			// –асчитываем общую длинну печати пр€мых и повернутых копий
-			var sumPrintLength = strLength + rotLength;
-
-			return sumPrintLength;			
-		},
-		
-		calcOptPrintLength: function(w, h) {
-			var rotPrintLengthW = 0, rotPrintLengthH = 0, strPrintLengthW = 0, strPrintLengthH = 0;
-			
-			if (w.mediaCapacity != 0){
-				rotPrintLengthW = this.calcRotPrintLength(w, h);
-				strPrintLengthW = this.calcStrPrintLength(w);
-			}; 
-			
-			if (h.mediaCapacity != 0){
-				rotPrintLengthH = this.calcRotPrintLength(h, w);
-				strPrintLengthH = this.calcStrPrintLength(h);
-			};
-			
-			// Rotate rest copies to calculate summary print length. Select optimal length by comparing each other.
-			var optimalRotPrintLength = this.returnMinValue(rotPrintLengthW, rotPrintLengthH);
-			// Straight orientation of rest copies. Calculate optimal straight length and compare each other.
-			var optimalStrPrintLength = this.returnMinValue(strPrintLengthW, strPrintLengthH);
-			var optimalPrintLength = this.returnMinValue(optimalRotPrintLength, optimalStrPrintLength);
-			
-			return optimalPrintLength;
-		},
-		
-		returnMinValue : function (v1, v2){
-			if (v1 != 0 && v2 != 0){
-				if (v1 <= v2) {
-					return v1;
-				} else {
-					return v2;
-				};
-			};
-			if (v1 === 0 && v2 != 0) return v2;
-			if (v2 === 0 && v1 != 0) return v1;			
-			if (v2 === 0 && v1 === 0) return 0;			
-		}
-		
 	
-	};
-	
-	var OptimalMediaObj = function(){
-		this.restSquare = 0;
-		
-		this.checkMinSquare = function (currentValue){
-			if ( this.restSquare == 0 || currentValue < this.restSquare ){
+	/**
+		OptimalMediaData - constructor, which value stores the most optimal variant of the squareRest.
+		Instance contains the most optimal variant of file fitting thought all media widths.
+	**/
+	var OptimalMediaData = function(){
+		this.value = 0;
+		this.fitObj = {};
+		this.checkValue = function (currentValue){
+			if ( this.value === 0 || (currentValue < this.value && currentValue != -1) ){
 				return true;
 			};
 			return false;
 		};
-		
-		this.setRestSquare = function (currentValue){
-			this.restSquare = currentValue;
-		};
-		
-		this.setPrintSquare = function (currentValue){
-			this.printSquare = currentValue;
-		};
-		
-		this.setMediaWidth = function (currentValue){
-			this.mediaWidth = currentValue;
-		};
-		
-		this.setPrintLength = function (currentValue){
-			this.printLength = currentValue;
+		this.setData = function (optObj){
+			this.fitObj = optObj;
+			this.value = optObj.mediaRestSquare;
 		};
 	};
-
 	
+	
+	/**
+		fitToMedia - method that sort all media widths and gets optimal file placement at each media
+	**/
+	var fitToMedia = function (){
+		var medias = formatData.mediaWidthArr.length,
+			optimalMediaData = new OptimalMediaData,
+			optObj;
+			
+		for (var i = 0; i < medias; i++){			
+			optObj = getOptObj(formatData.mediaWidthArr[i], formatData.count);
+		
+			if( optimalMediaData.checkValue(optObj.mediaRestSquare) === true ){
+				optimalMediaData.setData(optObj);
+			};
+		};
+		
+		checkAndSetAdditionalCopies(optimalMediaData.fitObj);
+		draw(optimalMediaData.fitObj);
+		return optimalMediaData.fitObj;		
+	};
+	
+	
+	var getOptObj = function(mediaWidth, printCount){
+		var wObj, hObj, wFit, hFit, optObj;
+			
+		wObj = new SetObjParams (formatData.width, formatData.height, mediaWidth, printCount);
+		hObj = new SetObjParams (formatData.height, formatData.width, mediaWidth, printCount);
 
+		wFit = checkAndGetFitData(wObj);
+		hFit = checkAndGetFitData(hObj);
+		optObj = getObjByOptimalSquare(wFit, hFit);
+		
+		return optObj;
+	};	
+	
+	
+	var checkAndGetFitData = function (whObj){
+		var fitObj;
+		if(whObj.mediaCapacity != 0 ){
+			fitObj = getFitDataObj(whObj);
+		}else{
+			fitObj = {mediaRestSquare:-1};
+		};
+		return fitObj;
+	};
+				
+	var getFitDataObj = function(whObj){
+		var fitData, storeObj, dataObj;
+		
+		fitData = new FitDataObj(whObj);
+	
+		if (whObj.restCount === 0){
+			storeObj = new StoreObj(whObj);
+		} else {
+			storeObj = getOptObj(whObj.mediaWidth, whObj.restCount);
+		};
+		dataObj = updateStoreObj(fitData, storeObj);
+		return dataObj;	
+	};
+	
+	var getObjByOptimalSquare = function (obj1, obj2){
+		if (obj1.mediaRestSquare !=-1 && obj2.mediaRestSquare !=-1){
+			if(obj1.mediaRestSquare <= obj2.mediaRestSquare){
+				return obj1;
+			}else{
+				return obj2;
+			};
+		};
+		if (obj1.mediaRestSquare ===-1 && obj2.mediaRestSquare !=-1 ) return obj2;
+		if (obj2.mediaRestSquare ===-1 && obj1.mediaRestSquare !=-1 ) return obj1;
+		if (obj1.mediaRestSquare ===-1 && obj2.mediaRestSquare ===-1 ) return obj1;
+	};
+		
+	var updateStoreObj = function (data, storeObj){
+		storeObj.mediaRestSquare += data.mediaRestSquare;
+		storeObj.arr = storeObj.arr.concat(data.arr);
+		return storeObj;
+	};
+		
+	var getRestSquare = function (whObj){
+		var lines, length, printSquare, mediaSquare;
+		
+		length = calcPrintLength(whObj);		
+		printSquare = whObj.width * whObj.height * whObj.completeLinedCount;
+		mediaSquare = whObj.mediaWidth * length;	
+		return mediaSquare - printSquare;
+	};
+
+	var calcPrintLength = function (whObj){
+		var lines = calcCountOfLines(whObj.completeLinedCount, whObj.mediaCapacity);
+		return lines * whObj.height;
+	};
+	
+	
+	// This method calculates count of copy's lines in media
+	var calcCountOfLines = function (copies, mediaCapacity){
+		return Math.ceil( copies / mediaCapacity );
+	};
+	
+	var checkAndSetAdditionalCopies = function(obj){
+		var lastFit, mediaCapacity, additionalCopies;
+		if(obj.mediaRestSquare != -1){
+			console.log(obj);
+			lastFit = obj.arr[0];
+
+			mediaCapacity = parseInt(obj.mediaWidth / lastFit.width);
+			if(mediaCapacity > lastFit.count){
+				additionalCopies = mediaCapacity - lastFit.count;
+				obj.additionalCopies = additionalCopies;
+			};
+
+			//return obj;
+		};
+	};
+	
+	var redraw = function(){
+		var elem = document.getElementById('media-types');
+		elem.innerHTML = '';
+		
+	};
+	
+	var draw = function (obj){
+	
+		var mediaTypes = document.getElementById('media-types'),
+			scale = 3,
+			fitLength = obj.arr.length,
+			newMedia = document.createElement('div'),
+			mediaWidth = document.createElement('div'),
+			copiesField = document.createElement('div'),
+			info = document.createElement('div');
+
+		newMedia.className = 'media';
+		newMedia.style.width = obj.mediaWidth*scale;
+		
+		mediaWidth.className = 'media_size';
+		mediaWidth.innerHTML = obj.mediaWidth;
+		
+		copiesField.className = 'copiesField cf';
+		
+		info.className = 'info';
+		info.innerHTML += '<p>RestSquare: ' + obj.mediaRestSquare + ' cm2';
+		if(obj.additionalCopies){
+			info.innerHTML += '<p>AdditionalCopies: ' + obj.additionalCopies;
+		};
+		
+		mediaTypes.appendChild(newMedia);
+		newMedia.appendChild(mediaWidth);
+		newMedia.appendChild(copiesField);
+		
+		for (var i = fitLength-1;i>=0;i--){
+			var fitCopies = obj.arr[i],
+				count = fitCopies.count;
+			
+			for (var j = 0; j<count; j++ ){
+			
+				var mediaPrintElement = document.createElement('div');
+				mediaPrintElement.className = 'element';
+				mediaPrintElement.innerHTML = fitCopies.width + 'x' + fitCopies.height;
+				mediaPrintElement.style.width = fitCopies.width*scale;
+				mediaPrintElement.style.height = fitCopies.height*scale;
+				copiesField.appendChild(mediaPrintElement);
+			};
+		};
+		newMedia.appendChild(info);
+	};
+	
+	return {
+		setData: function(args){
+			setFormatData(args);
+		},
+		getResult: function(){
+			return fitToMedia();
+		},
+		redraw:	function(){
+			redraw();
+		}
+	};	
+}());
 
 </script>
 
