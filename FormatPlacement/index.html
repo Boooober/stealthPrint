@@ -21,20 +21,19 @@
 <body>
 
 	<form id="form">
-		width<input type="text" id="width" value="42"><br /><br />
-		height<input type="text" id="height" value="63"><br /><br />
-		count<input type="text" id="count" value="5"><br /><br />
+		<input type="text" id="width" value="42"> x <input type="text" id="height" value="63">, cm<br /><br />
+		count: <input type="text" id="count" value="5"><br /><br />
 	</form>
 	
 	<div id="formats">
 		<div id="media-types" class="cf">
 	</div>
 	</div>
-
+<input type="submit" value="Start this madness" id="go">
 	
 <script>
-var orderedObject = {mediaWidthArr:[127,152,160]};
-
+//var orderedObject = {mediaWidthArr:[127,152,160]};
+/*
 window.addEventListener('load', function(){
 	orderedObject.printWidth = parseInt(document.getElementById('width').value);
 	orderedObject.printHeight = parseInt(document.getElementById('height').value);
@@ -56,47 +55,149 @@ form.addEventListener('change', function(e){
 	formatPlacement.redraw();
 	runModule();
 });
+*/
+
+go.addEventListener('click', function(){
+	formatPlacement.getResult();
+});
+
 function runModule(){
-	formatPlacement.setData(orderedObject);
+	//formatPlacement.setData(orderedObject);
 	formatPlacement.getResult();
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var formatPlacement = (function(){
 	
-	var formatData = {};
+	var formatData = {
+					medias:[127,152,160],
+					formats:[{printCount:3,width:45,height:30},{printCount:1,width:100,height:80}]
+				};
 	
-	
+	var sortFormatData = function (){
+		formatData.formats.sort(function(a,b){
+			var s1, s2;
+			s1 = a.width * a.height;
+			s2 = b.width * b.height;
+			return s2 - s1;
+		});
+	};
 	/**
-		Module interface method to set up required format data
+		Interface method to set up required format data
 	**/
+	/*
 	var setFormatData = function (args){
 		formatData.width = args.printWidth;
 		formatData.height = args.printHeight;
 		formatData.count = args.printCount;
 		formatData.mediaWidthArr = args.mediaWidthArr;
 	};
+	*/
+	
+	/** 
+		SetObjParams - constructor, that contains relations between the current media width and current file size.
+		It is used for creating wObj and hObj, to fit copies on the media 
+	**/
+	var SetObjParams = function (width, height, printCount, mediaWidth){				
+		this.width = width;
+		this.height = height;
+		this.mediaWidth = mediaWidth;
+		this.mediaCoef = this.mediaWidth / this.width
+		this.mediaCapacity = parseInt(this.mediaCoef);
+		this.totalCount = printCount;
+		if (this.mediaCapacity != 0) {
+			this.restCount = this.totalCount % this.mediaCapacity;
+			if(this.totalCount === this.restCount || this.restCount === 0){
+				if(this.restCount === 0){
+					this.restCount = this.mediaCapacity;
+				}
+				this.mediaWidthRest = this.mediaWidth - this.restCount*this.width;
+				this.restCount = 0;
+			};
+			this.completeLinedCount = this.totalCount - this.restCount;
+		};
+	};
+	
+	/**
+		pickingMedia - method that sort all media widths and gets optimal file placement at each media
+	**/
+	var pickingMedia = function (){
+		var medias = formatData.medias,
+			formats = formatData.formats,
+			mediasCount = medias.length,
+			optimalMediaData = new OptimalMediaData,
+			optObj;
+			
+			
+		for (var i = 0; i < mediasCount; i++){
+			console.log('----- This is '+medias[i]+' media -----')
+			
+			optObj = getOptObj(medias[i], formats[0]);
+		
+			console.log(optObj);
+		
+		
+		
+		
+			if( optimalMediaData.checkValue(optObj.mediaSquareRest) === true ){
+				optimalMediaData.setData(optObj);
+			};
+		
+		};
+		draw(optimalMediaData.fitObj);
+		return optimalMediaData.fitObj;	
+	};
+	
+
+	var getOptObj = function(mediaWidth, format){
+		var wObj, hObj, wFit, hFit, optObj;
+
+		wObj = new SetObjParams (format.width, format.height, format.printCount, mediaWidth);
+		hObj = new SetObjParams (format.height, format.width, format.printCount, mediaWidth);
+
+		wFit = checkAndGetFitData(wObj);
+		hFit = checkAndGetFitData(hObj);
+		optObj = getObjByOptimalSquare(wFit, hFit);
+		
+		return optObj;
+	};	
+	
+	var checkAndGetFitData = function (whObj){
+		var fitObj;
+		if(whObj.mediaCapacity != 0 ){
+			fitObj = getFitDataObj(whObj);
+		}else{
+			fitObj = {mediaSquareRest:-1};
+		};
+		return fitObj;
+	};
+
+	var getFitDataObj = function(whObj){
+		var fitData, storeObj, dataObj, 
+			recParams = {width:whObj.width, height:whObj.height, printCount:whObj.restCount};
+
+		fitData = new FitDataObj(whObj);
+	
+		if (recParams.printCount === 0){
+			storeObj = new StoreObj(whObj);
+		} else {
+			storeObj = getOptObj(whObj.mediaWidth, recParams);
+		};
+		dataObj = updateStoreObj(fitData, storeObj);
+		return dataObj;	
+	};
+	
+	
+	/**
+		Supported functions
+	**/
+
 	
 	/**
 		FitDataObj - Retrieves necessary data with additional information about placement.
 		Create useful structure for comparison and fit visualization.
 	**/
 	var FitDataObj = function (whObj){
-		this.mediaRestSquare = getRestSquare(whObj);
+		this.mediaSquareRest = getSquareRest(whObj);
 		this.arr = [{
 					width:whObj.width,
 					height:whObj.height,
@@ -112,30 +213,14 @@ var formatPlacement = (function(){
 		Contains the result returned by recursion.
 	**/
 	var StoreObj = function(whObj){
+			if(checkAdditionalCopies(whObj)){
+				this.additionalCopies = setAdditionalCopies(whObj);
+			};
 			this.mediaWidth = whObj.mediaWidth;
-			this.mediaRestSquare = 0;
+			this.mediaSquareRest = 0;
+			this.mediaWidthRest = whObj.mediaWidthRest;
 			this.arr = [];
 		};
-	
-	/** 
-		SetObjParams - constructor, that contains relations between the current media width and current file size.
-		It is used for creating wObj and hObj, to fit copies on the media 
-	**/
-	var SetObjParams = function (width, height, mediaWidth, printCount){				
-		this.width = width;
-		this.height = height;
-		this.mediaWidth = mediaWidth;
-		this.mediaCoef = this.mediaWidth / this.width
-		this.mediaCapacity = parseInt(this.mediaCoef);
-		this.totalCount = printCount;
-		if (this.mediaCapacity != 0) {
-			this.restCount = this.totalCount % this.mediaCapacity;
-			if(this.totalCount === this.restCount){
-				this.restCount = 0;
-			};
-			this.completeLinedCount = this.totalCount - this.restCount;
-		};
-	};
 	
 
 	
@@ -154,91 +239,34 @@ var formatPlacement = (function(){
 		};
 		this.setData = function (optObj){
 			this.fitObj = optObj;
-			this.value = optObj.mediaRestSquare;
+			this.value = optObj.mediaSquareRest;
 		};
 	};
-	
-	
-	/**
-		fitToMedia - method that sort all media widths and gets optimal file placement at each media
-	**/
-	var fitToMedia = function (){
-		var medias = formatData.mediaWidthArr.length,
-			optimalMediaData = new OptimalMediaData,
-			optObj;
-			
-		for (var i = 0; i < medias; i++){			
-			optObj = getOptObj(formatData.mediaWidthArr[i], formatData.count);
-		
-			if( optimalMediaData.checkValue(optObj.mediaRestSquare) === true ){
-				optimalMediaData.setData(optObj);
-			};
-		};
-		
-		checkAndSetAdditionalCopies(optimalMediaData.fitObj);
-		draw(optimalMediaData.fitObj);
-		return optimalMediaData.fitObj;		
-	};
-	
-	
-	var getOptObj = function(mediaWidth, printCount){
-		var wObj, hObj, wFit, hFit, optObj;
-			
-		wObj = new SetObjParams (formatData.width, formatData.height, mediaWidth, printCount);
-		hObj = new SetObjParams (formatData.height, formatData.width, mediaWidth, printCount);
 
-		wFit = checkAndGetFitData(wObj);
-		hFit = checkAndGetFitData(hObj);
-		optObj = getObjByOptimalSquare(wFit, hFit);
-		
-		return optObj;
-	};	
-	
-	
-	var checkAndGetFitData = function (whObj){
-		var fitObj;
-		if(whObj.mediaCapacity != 0 ){
-			fitObj = getFitDataObj(whObj);
-		}else{
-			fitObj = {mediaRestSquare:-1};
-		};
-		return fitObj;
-	};
-				
-	var getFitDataObj = function(whObj){
-		var fitData, storeObj, dataObj;
-		
-		fitData = new FitDataObj(whObj);
-	
-		if (whObj.restCount === 0){
-			storeObj = new StoreObj(whObj);
-		} else {
-			storeObj = getOptObj(whObj.mediaWidth, whObj.restCount);
-		};
-		dataObj = updateStoreObj(fitData, storeObj);
-		return dataObj;	
-	};
 	
 	var getObjByOptimalSquare = function (obj1, obj2){
-		if (obj1.mediaRestSquare !=-1 && obj2.mediaRestSquare !=-1){
-			if(obj1.mediaRestSquare <= obj2.mediaRestSquare){
+		if (obj1.mediaSquareRest !=-1 && obj2.mediaSquareRest !=-1){
+			if(obj1.mediaSquareRest <= obj2.mediaSquareRest){
 				return obj1;
 			}else{
 				return obj2;
 			};
 		};
-		if (obj1.mediaRestSquare ===-1 && obj2.mediaRestSquare !=-1 ) return obj2;
-		if (obj2.mediaRestSquare ===-1 && obj1.mediaRestSquare !=-1 ) return obj1;
-		if (obj1.mediaRestSquare ===-1 && obj2.mediaRestSquare ===-1 ) return obj1;
+		if (obj1.mediaSquareRest ===-1 && obj2.mediaSquareRest !=-1 ) return obj2;
+		if (obj2.mediaSquareRest ===-1 && obj1.mediaSquareRest !=-1 ) return obj1;
+		if (obj1.mediaSquareRest ===-1 && obj2.mediaSquareRest ===-1 ) return obj1;
 	};
 		
+		
+		
+		
 	var updateStoreObj = function (data, storeObj){
-		storeObj.mediaRestSquare += data.mediaRestSquare;
+		storeObj.mediaSquareRest += data.mediaSquareRest;
 		storeObj.arr = storeObj.arr.concat(data.arr);
 		return storeObj;
 	};
 		
-	var getRestSquare = function (whObj){
+	var getSquareRest = function (whObj){
 		var lines, length, printSquare, mediaSquare;
 		
 		length = calcPrintLength(whObj);		
@@ -253,26 +281,31 @@ var formatPlacement = (function(){
 	};
 	
 	
+	
 	// This method calculates count of copy's lines in media
 	var calcCountOfLines = function (copies, mediaCapacity){
 		return Math.ceil( copies / mediaCapacity );
 	};
 	
-	var checkAndSetAdditionalCopies = function(obj){
-		var lastFit, mediaCapacity, additionalCopies;
-		if(obj.mediaRestSquare != -1){
-			console.log(obj);
-			lastFit = obj.arr[0];
-
-			mediaCapacity = parseInt(obj.mediaWidth / lastFit.width);
-			if(mediaCapacity > lastFit.count){
-				additionalCopies = mediaCapacity - lastFit.count;
-				obj.additionalCopies = additionalCopies;
-			};
-
-			//return obj;
+	
+	var checkAdditionalCopies = function(whObj){
+		if(whObj.mediaCapacity > whObj.completeLinedCount){
+			return true;
 		};
+		return false;
 	};
+	
+	var setAdditionalCopies = function(whObj){
+		return whObj.mediaCapacity - whObj.completeLinedCount;
+	};
+	
+	
+
+	
+	
+	
+	
+	
 	
 	var redraw = function(){
 		var elem = document.getElementById('media-types');
@@ -299,7 +332,7 @@ var formatPlacement = (function(){
 		copiesField.className = 'copiesField cf';
 		
 		info.className = 'info';
-		info.innerHTML += '<p>RestSquare: ' + obj.mediaRestSquare + ' cm2';
+		info.innerHTML += '<p>RestSquare: ' + obj.mediaSquareRest + ' cm2';
 		if(obj.additionalCopies){
 			info.innerHTML += '<p>AdditionalCopies: ' + obj.additionalCopies;
 		};
@@ -326,11 +359,12 @@ var formatPlacement = (function(){
 	};
 	
 	return {
-		setData: function(args){
+	/*	setData: function(args){
 			setFormatData(args);
-		},
+		},*/
 		getResult: function(){
-			return fitToMedia();
+			//sortFormatData();
+			return pickingMedia();
 		},
 		redraw:	function(){
 			redraw();
