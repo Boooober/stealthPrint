@@ -1,0 +1,65 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	
+	<style>
+		body {position:relative}
+		#form {display:block;float:left}
+		#formats {display:block; margin-left: 200px;}
+		#media-types {margin:0 auto}
+		.media {float:left; margin: 0 20px 20px;border: 1px solid green;padding-top:5px;}
+		.media:after{content:"";display:block;clear:both}
+		.media_size {width:100%;text-align:center;border:1px dashed green; margin-bottom:5px;box-sizing:border-box;}
+		.element {background-color:green;box-sizing:border-box;border:1px solid red;float:left}
+		.info p {margin:5px;}
+		.cf:before, .cf:after {content:'';display:block;}
+		.cf:after{clear:both}
+		
+		
+	</style>
+</head>
+<body>
+
+	<form id="form">
+		<input type="text" id="width" value="42"> x <input type="text" id="height" value="63">, cm<br /><br />
+		count: <input type="text" id="count" value="5"><br /><br />
+	</form>
+	
+	<div id="formats">
+		<div id="media-types" class="cf">
+	</div>
+	</div>
+
+	
+<script>
+var orderedObject = {
+					mediaWidthArr:[127,152,160],
+					formats:[{printCount:5,printWidth:42,printHeight:63},{printCount:1,printWidth:40,printHeight:100}, {printCount:3,printWidth:30,printHeight:75}]
+				};
+
+
+var sortOrderedFormats = function (){
+	orderedObject.formats.sort(function(a,b){
+		var s1, s2;
+		s1 = a.printWidth * a.printHeight;
+		s2 = b.printWidth * b.printHeight;
+		return s2 - s1;
+	});
+};
+
+sortOrderedFormats();
+
+var matchMedia = function(){
+	var formats = orderedObject.formats;
+		formatsCount = orderedObject.formats.length;
+	for (var i = 0; i<formatsCount; i++){
+		formats[i]
+	}
+}
+
+
+
+</script>
+
+</body>
+</html>

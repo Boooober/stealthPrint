@@ -63,6 +63,7 @@ go.addEventListener('click', function(){
 
 function runModule(){
 	//formatPlacement.setData(orderedObject);
+	formatPlacement.redraw();
 	formatPlacement.getResult();
 };
 
@@ -116,6 +117,8 @@ var formatPlacement = (function(){
 			this.completeLinedCount = this.totalCount - this.restCount;
 		};
 	};
+	var objVariants = [];
+	
 	
 	/**
 		pickingMedia - method that sort all media widths and gets optimal file placement at each media
@@ -131,12 +134,9 @@ var formatPlacement = (function(){
 		for (var i = 0; i < mediasCount; i++){
 			console.log('----- This is '+medias[i]+' media -----')
 			
-			optObj = getOptObj(medias[i], formats[0]);
+			getOptObj(medias[i], formats[0]);
 		
 			console.log(optObj);
-		
-		
-		
 		
 			if( optimalMediaData.checkValue(optObj.mediaSquareRest) === true ){
 				optimalMediaData.setData(optObj);
@@ -156,7 +156,7 @@ var formatPlacement = (function(){
 
 		wFit = checkAndGetFitData(wObj);
 		hFit = checkAndGetFitData(hObj);
-		optObj = getObjByOptimalSquare(wFit, hFit);
+
 		
 		return optObj;
 	};	
